@@ -11,18 +11,63 @@ $ npm i map-config --save
 ## Usage
 
 ```js
-var mapConfig = require('map-config');
+var MapConfig = require('map-config');
 ```
 
 ## API
 
-<!-- add a path or glob pattern for files with code comments to use for docs  -->
-{%= apidocs("index.js") %}
+```js
+var map = {
+  foo: 'bar'
+};
+
+var app = {
+  bar: function () {
+    console.log(arguments);
+  }
+};
+
+var config = {
+  foo: {
+    baz: 'beep'
+  }
+};
+```
+
+### [MapConfig](index.js#L23)
+
+Create a new instance of MapConfig with a specified map and application.
+
+**Params**
+
+* `map` **{Object}**: Object specifying how to map a configuration to an application.
+* `app` **{Object}**: Object containing the methods that will be called based on the map specification.
+
+**Example**
+
+```js
+var mapper = new MapConfig(map, app);
+```
+
+### [.process](index.js#L38)
+
+Process a configuration object with the already configured `map` and `app`.
+
+**Params**
+
+* `config` **{Object}**: Configuration object to map to application methods.
+
+**Example**
+
+```js
+mapper.process(config);
+```
 
 ## Related projects
 
-<!-- add an array of related projects, then un-escape the helper -->
-{%= related([]) %}
+* [assemble](https://www.npmjs.com/package/assemble): Static site generator for Grunt.js, Yeoman and Node.js. Used by Zurb Foundation, Zurb Ink, H5BP/Effeckt,… [more](https://www.npmjs.com/package/assemble) | [homepage](http://assemble.io)
+* [templates](https://www.npmjs.com/package/templates): System for creating and managing template collections, and rendering templates with any node.js template engine.… [more](https://www.npmjs.com/package/templates) | [homepage](https://github.com/jonschlinkert/templates)
+* [verb](https://www.npmjs.com/package/verb): Documentation generator for GitHub projects. Verb is extremely powerful, easy to use, and is used… [more](https://www.npmjs.com/package/verb) | [homepage](https://github.com/verbose/verb)
 
 ## Running tests
 
