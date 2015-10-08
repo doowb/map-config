@@ -43,9 +43,9 @@ MapConfig.prototype.process = function(config) {
     }
     var val = config[from];
     if (typeof to === 'function') {
-      return to(val);
+      return to(val, this.app);
     }
-    return this.app[to](val);
+    return this.app[to](val, this.app);
   }, this);
 };
 
