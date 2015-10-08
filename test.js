@@ -14,5 +14,23 @@ var MapConfig = require('./');
 
 describe('map-config', function () {
   it('should:', function () {
+    var map = {
+      foo: 'bar'
+    };
+
+    var app = {
+      bar: function () {
+        console.log(arguments);
+      }
+    };
+
+    var config = {
+      foo: {
+        baz: 'beep'
+      }
+    };
+
+    var mapper = new MapConfig(map, app);
+    mapper.process(config);
   });
 });
