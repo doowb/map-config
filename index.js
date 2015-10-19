@@ -94,10 +94,12 @@ MapConfig.prototype.process = function(args) {
         !this.aliases.hasOwnProperty(key)) {
       return;
     }
+
     var fn = this.config[key];
     if (typeof fn === 'function') {
       return fn.call(this.app, val);
     }
+
     fn = this.app[key] || this.app[this.aliases[key]];
     return fn.call(this.app, val);
   }, this);
