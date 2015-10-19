@@ -13,65 +13,130 @@ var should = require('should');
 var MapConfig = require('./');
 
 describe('map-config', function () {
-  it('should pass a config and the app instance to mapped methods', function () {
-    var called = false;
-    var map = {foo: 'bar', baz: 'bang'};
-    var app = {bar: function (config, _app) {
-      called = true;
-      assert.deepEqual(config, {baz: 'beep'});
-      assert.deepEqual(app, _app);
-    }};
-    var config = {foo: {baz: 'beep'}};
-    var mapper = new MapConfig(map, app);
-    mapper.process(config);
-    assert(called);
+  describe('constructor', function () {
+    it('should pass a config and the app instance to mapped methods', function () {
+      var called = false;
+      var map = {foo: 'bar', baz: 'bang'};
+      var app = {bar: function (config) {
+        called = true;
+        assert.deepEqual(config, {baz: 'beep'});
+        assert.deepEqual(this, app);
+      }};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app, map);
+      mapper.process(config);
+      assert(called);
+    });
+
+    it('should pass a config and the app instance to mapped functions', function () {
+      var called = false;
+      var map = {foo: function (config) {
+        called = true;
+        assert.deepEqual(config, {baz: 'beep'});
+        assert.deepEqual(this, app);
+      }};
+
+      var app = {beep: 'boop'};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app, map);
+      mapper.process(config);
+      assert(called);
+    });
+
+    it('should call a method on the app mapped through the map', function () {
+      var output = [];
+      var map = {foo: 'bar'};
+
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
+
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app, map);
+      mapper.process(config);
+
+      assert.deepEqual(output, ['bar beep']);
+    });
+
+    it('should not map anything when config is empty', function () {
+      var output = [];
+      var map = {foo: 'bar'};
+
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
+
+      var mapper = new MapConfig(app, map);
+      mapper.process();
+
+      assert.deepEqual(output, []);
+    });
   });
 
-  it('should pass a config and the app instance to mapped functions', function () {
-    var called = false;
-    var map = {foo: function (config, _app) {
-      called = true;
-      assert.deepEqual(config, {baz: 'beep'});
-      assert.deepEqual(app, _app);
-    }};
+  describe('map', function () {
+    it('should pass a config and the app instance to mapped methods from `.map`', function () {
+      var called = false;
+      var app = {bar: function (config) {
+        called = true;
+        assert.deepEqual(config, {baz: 'beep'});
+        assert.deepEqual(this, app);
+      }};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .map('foo', 'bar')
+        .map('baz', 'bang');
+      mapper.process(config);
+      assert(called);
+    });
 
-    var app = {beep: 'boop'};
-    var config = {foo: {baz: 'beep'}};
-    var mapper = new MapConfig(map, app);
-    mapper.process(config);
-    assert(called);
-  });
+    it('should pass a config and the app instance to mapped functions from `.map`', function () {
+      var called = false;
+      var app = {beep: 'boop'};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .map('foo', function (config) {
+          called = true;
+          assert.deepEqual(config, {baz: 'beep'});
+          assert.deepEqual(this, app);
+        });
+      mapper.process(config);
+      assert(called);
+    });
 
-  it('should call a method on the app mapped through the map', function () {
-    var output = [];
-    var map = {foo: 'bar'};
+    it('should call a method on the app mapped through the map from `.map`', function () {
+      var output = [];
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
 
-    var app = {
-      bar: function (config) {
-        output.push('bar ' + config.baz);
-      }
-    };
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .map('foo', 'bar');
+      mapper.process(config);
 
-    var config = {foo: {baz: 'beep'}};
-    var mapper = new MapConfig(map, app);
-    mapper.process(config);
+      assert.deepEqual(output, ['bar beep']);
+    });
 
-    assert.deepEqual(output, ['bar beep']);
-  });
+    it('should not map anything when config is empty from `.map`', function () {
+      var output = [];
 
-  it('should not map anything when config is empty', function () {
-    var output = [];
-    var map = {foo: 'bar'};
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
 
-    var app = {
-      bar: function (config) {
-        output.push('bar ' + config.baz);
-      }
-    };
+      var mapper = new MapConfig(app)
+        .map('foo', 'bar');
+      mapper.process();
 
-    var mapper = new MapConfig(map, app);
-    mapper.process();
-
-    assert.deepEqual(output, []);
+      assert.deepEqual(output, []);
+    });
   });
 });

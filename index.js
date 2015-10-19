@@ -7,23 +7,50 @@
 
 'use strict';
 
-var forOwn = require('for-own');
+var utils = require('./utils');
 
 /**
  * Create a new instance of MapConfig with a specified map and application.
  *
  * ```js
- * var mapper = new MapConfig(map, app);
+ * var mapper = new MapConfig(app, map);
  * ```
- * @param {Object} `map` Object specifying how to map a configuration to an application.
  * @param {Object} `app` Object containing the methods that will be called based on the map specification.
+ * @param {Object} `map` Optional object specifying how to map a configuration to an application.
  * @api public
  */
 
-function MapConfig (map, app) {
-  this.map = map;
-  this.app = app;
+function MapConfig (app, map) {
+  if (!(this instanceof MapConfig)) {
+    return new MapConfig(app, map);
+  }
+
+  utils.define(this, 'app', app);
+  utils.define(this, '_map', map || {});
 }
+
+/**
+ * Map a property to a function.
+ *
+ * ```js
+ * mapper.map('foo', function (config) {
+ * });
+ * ```
+
+ * @param  {String} `key` property key to map.
+ * @param  {Function} `fn` Optional function to call when a config has the given key. Map be a string specifying a method on the app to call.
+ * @return {Object} `this` to enable chaining
+ * @api public
+ */
+
+MapConfig.prototype.map = function(key, fn) {
+  if (typeof fn === 'undefined') {
+    fn = key;
+  }
+
+  this._map[key] = fn;
+  return this;
+};
 
 /**
  * Process a configuration object with the already configured `map` and `app`.
@@ -37,16 +64,17 @@ function MapConfig (map, app) {
 
 MapConfig.prototype.process = function(config) {
   config = config || {};
-  forOwn(this.map, function (to, from) {
-    if (!config.hasOwnProperty(from)) {
+  utils.forOwn(this._map, function (fn, key) {
+    if (!config.hasOwnProperty(key)) {
       return;
     }
-    var val = config[from];
-    if (typeof to === 'function') {
-      return to(val, this.app);
+    var val = config[key];
+    if (typeof fn === 'function') {
+      return fn.call(this.app, val);
     }
-    return this.app[to](val, this.app);
+    return this.app[fn](val);
   }, this);
+  return this;
 };
 
 /**

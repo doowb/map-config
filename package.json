@@ -38,6 +38,8 @@
     }
   },
   "dependencies": {
-    "for-own": "^0.1.3"
+    "define-property": "^0.2.5",
+    "for-own": "^0.1.3",
+    "lazy-cache": "^0.2.3"
   }
 }
