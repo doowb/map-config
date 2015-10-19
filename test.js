@@ -103,6 +103,19 @@ describe('map-config', function () {
 
       assert.deepEqual(output, []);
     });
+
+    it('should not map anything when aliased property is not a method', function () {
+      var output = [];
+      var app = {
+        bar: 'baz'
+      };
+
+      var mapper = new MapConfig(app)
+        .alias('foo', 'bar');
+      mapper.process({'foo': {baz: 'foo'}});
+
+      assert.deepEqual(output, []);
+    });
   });
 
   describe('map', function () {
