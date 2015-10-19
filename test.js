@@ -14,6 +14,20 @@ var MapConfig = require('./');
 
 describe('map-config', function () {
   describe('constructor', function () {
+    it('should create a new instance without `new`', function () {
+      var called = false;
+      var map = {foo: 'bar', baz: 'bang'};
+      var app = {bar: function (config) {
+        called = true;
+        assert.deepEqual(config, {baz: 'beep'});
+        assert.deepEqual(this, app);
+      }};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = MapConfig(app, map);
+      mapper.process(config);
+      assert(called);
+    });
+
     it('should pass a config and the app instance to mapped methods', function () {
       var called = false;
       var map = {foo: 'bar', baz: 'bang'};
@@ -121,6 +135,22 @@ describe('map-config', function () {
       mapper.process(config);
 
       assert.deepEqual(output, ['bar beep']);
+    });
+
+    it('should call same method on the app as specified through `.map`', function () {
+      var output = [];
+      var app = {
+        foo: function (config) {
+          output.push('foo ' + config.baz);
+        }
+      };
+
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .map('foo');
+      mapper.process(config);
+
+      assert.deepEqual(output, ['foo beep']);
     });
 
     it('should not map anything when config is empty from `.map`', function () {
