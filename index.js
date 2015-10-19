@@ -98,7 +98,8 @@ MapConfig.prototype.process = function(args) {
     if (typeof fn === 'function') {
       return fn.call(this.app, val);
     }
-    return (this.app[key] || this.app[this.aliases[key]]).call(this.app, val);
+    fn = this.app[key] || this.app[this.aliases[key]];
+    return fn.call(this.app, val);
   }, this);
   return this;
 };
