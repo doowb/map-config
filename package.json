@@ -21,6 +21,7 @@
     "test": "mocha"
   },
   "devDependencies": {
+    "base-methods": "^0.2.14",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.1",
     "gulp-jshint": "^1.11.2",
