@@ -30,15 +30,18 @@ function MapConfig (app, map) {
 }
 
 /**
- * Map a property to a function.
+ * Map a properties to methods and/or functions.
  *
  * ```js
- * mapper.map('foo', function (config) {
- * });
+ * mapper
+ *   .map('foo', 'bar')
+ *   .map('baz')
+ *   .map('bang', function (config) {
+ *   });
  * ```
 
  * @param  {String} `key` property key to map.
- * @param  {Function} `fn` Optional function to call when a config has the given key. Map be a string specifying a method on the app to call.
+ * @param  {String|Function} `fn` Optional method or function to call when a config has the given key. Map be a string specifying a method on the app to call.
  * @return {Object} `this` to enable chaining
  * @api public
  */
