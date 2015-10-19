@@ -31,27 +31,42 @@ Create a new instance of MapConfig with a specified map and application.
 var mapper = new MapConfig(app, map);
 ```
 
-### [.map](index.js#L49)
+### [.map](index.js#L54)
 
 Map a properties to methods and/or functions.
 
 **Params**
 
 * `key` **{String}**: property key to map.
-* `fn` **{String|Function}**: Optional method or function to call when a config has the given key. Map be a string specifying a method on the app to call.
+* `fn` **{Function}**: Optional function to call when a config has the given key.
 * `returns` **{Object}** `this`: to enable chaining
 
 **Example**
 
 ```js
 mapper
-  .map('foo', 'bar')
   .map('baz')
   .map('bang', function (config) {
   });
 ```
 
-### [.process](index.js#L68)
+### [.alias](index.js#L75)
+
+Alias properties to methods on the `app`.
+
+**Params**
+
+* `key` **{String}**: property key to map.
+* `alias` **{String}**: Method to call instead of the key.
+* `returns` **{Object}** `this`: to enable chaining
+
+**Example**
+
+```js
+mapper.alias('foo', 'bar');
+```
+
+### [.process](index.js#L90)
 
 Process a configuration object with the already configured `map` and `app`.
 
