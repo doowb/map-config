@@ -20,13 +20,19 @@ var utils = require('./utils');
  * @api public
  */
 
-function MapConfig (app, map) {
+function MapConfig (app, config) {
   if (!(this instanceof MapConfig)) {
-    return new MapConfig(app, map);
+    return new MapConfig(app, config);
   }
 
   utils.define(this, 'app', app);
-  utils.define(this, '_map', map || {});
+  utils.define(this, 'aliases', {});
+  utils.define(this, 'config', {});
+  if (config) {
+    utils.forOwn(config, function (val, key) {
+      this.map(key, val);
+    }, this);
+  }
 }
 
 /**
@@ -34,24 +40,40 @@ function MapConfig (app, map) {
  *
  * ```js
  * mapper
- *   .map('foo', 'bar')
  *   .map('baz')
  *   .map('bang', function (config) {
  *   });
  * ```
 
  * @param  {String} `key` property key to map.
- * @param  {String|Function} `fn` Optional method or function to call when a config has the given key. Map be a string specifying a method on the app to call.
+ * @param  {Function} `fn` Optional function to call when a config has the given key.
  * @return {Object} `this` to enable chaining
  * @api public
  */
 
 MapConfig.prototype.map = function(key, fn) {
-  if (typeof fn === 'undefined') {
-    fn = key;
+  if (typeof fn === 'string') {
+    return this.alias(key, fn);
   }
+  this.config[key] = fn;
+  return this;
+};
 
-  this._map[key] = fn;
+/**
+ * Alias properties to methods on the `app`.
+ *
+ * ```js
+ * mapper.alias('foo', 'bar');
+ * ```
+
+ * @param  {String} `key` property key to map.
+ * @param  {String} `alias` Method to call instead of the key.
+ * @return {Object} `this` to enable chaining
+ * @api public
+ */
+
+MapConfig.prototype.alias = function(key, alias) {
+  this.aliases[key] = alias;
   return this;
 };
 
@@ -65,17 +87,18 @@ MapConfig.prototype.map = function(key, fn) {
  * @api public
  */
 
-MapConfig.prototype.process = function(config) {
-  config = config || {};
-  utils.forOwn(this._map, function (fn, key) {
-    if (!config.hasOwnProperty(key)) {
+MapConfig.prototype.process = function(args) {
+  args = args || {};
+  utils.forOwn(args, function (val, key) {
+    if (!this.config.hasOwnProperty(key) &&
+        !this.aliases.hasOwnProperty(key)) {
       return;
     }
-    var val = config[key];
+    var fn = this.config[key];
     if (typeof fn === 'function') {
       return fn.call(this.app, val);
     }
-    return this.app[fn](val);
+    return (this.app[key] || this.app[this.aliases[key]]).call(this.app, val);
   }, this);
   return this;
 };

@@ -89,6 +89,20 @@ describe('map-config', function () {
 
       assert.deepEqual(output, []);
     });
+
+    it('should not map anything when nothing is configured', function () {
+      var output = [];
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
+
+      var mapper = new MapConfig(app);
+      mapper.process({'bar': {baz: 'foo'}});
+
+      assert.deepEqual(output, []);
+    });
   });
 
   describe('map', function () {
