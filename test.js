@@ -119,21 +119,6 @@ describe('map-config', function () {
   });
 
   describe('map', function () {
-    it('should pass a config and the app instance to mapped methods from `.map`', function () {
-      var called = false;
-      var app = {bar: function (config) {
-        called = true;
-        assert.deepEqual(config, {baz: 'beep'});
-        assert.deepEqual(this, app);
-      }};
-      var config = {foo: {baz: 'beep'}};
-      var mapper = new MapConfig(app)
-        .map('foo', 'bar')
-        .map('baz', 'bang');
-      mapper.process(config);
-      assert(called);
-    });
-
     it('should pass a config and the app instance to mapped functions from `.map`', function () {
       var called = false;
       var app = {beep: 'boop'};
@@ -146,22 +131,6 @@ describe('map-config', function () {
         });
       mapper.process(config);
       assert(called);
-    });
-
-    it('should call a method on the app mapped through the map from `.map`', function () {
-      var output = [];
-      var app = {
-        bar: function (config) {
-          output.push('bar ' + config.baz);
-        }
-      };
-
-      var config = {foo: {baz: 'beep'}};
-      var mapper = new MapConfig(app)
-        .map('foo', 'bar');
-      mapper.process(config);
-
-      assert.deepEqual(output, ['bar beep']);
     });
 
     it('should call same method on the app as specified through `.map`', function () {
@@ -194,6 +163,39 @@ describe('map-config', function () {
       mapper.process();
 
       assert.deepEqual(output, []);
+    });
+  });
+
+  describe('alias', function () {
+    it('should pass a config and the app instance to mapped methods from `.alias`', function () {
+      var called = false;
+      var app = {bar: function (config) {
+        called = true;
+        assert.deepEqual(config, {baz: 'beep'});
+        assert.deepEqual(this, app);
+      }};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .alias('foo', 'bar')
+        .alias('baz', 'bang');
+      mapper.process(config);
+      assert(called);
+    });
+
+    it('should call a method on the app mapped through the map from `.alias`', function () {
+      var output = [];
+      var app = {
+        bar: function (config) {
+          output.push('bar ' + config.baz);
+        }
+      };
+
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .alias('foo', 'bar');
+      mapper.process(config);
+
+      assert.deepEqual(output, ['bar beep']);
     });
   });
 });

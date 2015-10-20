@@ -7,8 +7,6 @@
 
 'use strict';
 
-var utils = require('./utils');
-
 /**
  * Create a new instance of MapConfig with a specified map and application.
  *
@@ -25,13 +23,19 @@ function MapConfig (app, config) {
     return new MapConfig(app, config);
   }
 
-  utils.define(this, 'app', app);
-  utils.define(this, 'aliases', {});
-  utils.define(this, 'config', {});
+  this.app = app;
+  this.aliases = {};
+  this.config = {};
+
   if (config) {
-    utils.forOwn(config, function (val, key) {
-      this.map(key, val);
-    }, this);
+    for (var key in config) {
+      var val = config[key];
+      if (typeof val === 'string') {
+        this.alias(key, val);
+      } else {
+        this.map(key, val);
+      }
+    }
   }
 }
 
@@ -51,11 +55,11 @@ function MapConfig (app, config) {
  * @api public
  */
 
-MapConfig.prototype.map = function(key, fn) {
-  if (typeof fn === 'string') {
-    return this.alias(key, fn);
+MapConfig.prototype.map = function(key, val) {
+  if (typeof val !== 'function') {
+    val = this.app[key];
   }
-  this.config[key] = fn;
+  this.config[key] = val;
   return this;
 };
 
@@ -66,14 +70,14 @@ MapConfig.prototype.map = function(key, fn) {
  * mapper.alias('foo', 'bar');
  * ```
 
- * @param  {String} `key` property key to map.
- * @param  {String} `alias` Method to call instead of the key.
+ * @param  {String} `alias` Property being mapped from..
+ * @param  {String} `key` Property being mapped to on the app.
  * @return {Object} `this` to enable chaining
  * @api public
  */
 
-MapConfig.prototype.alias = function(key, alias) {
-  this.aliases[key] = alias;
+MapConfig.prototype.alias = function(alias, key) {
+  this.aliases[alias] = key;
   return this;
 };
 
@@ -89,28 +93,16 @@ MapConfig.prototype.alias = function(key, alias) {
 
 MapConfig.prototype.process = function(args) {
   args = args || {};
-  utils.forOwn(args, function (val, key) {
-    if (!this.config.hasOwnProperty(key) &&
-        !this.aliases.hasOwnProperty(key)) {
-      return;
-    }
 
-    var fn = this.config[key];
-    if (typeof fn === 'function') {
-      return fn.call(this.app, val);
-    }
+  for (var alias in this.aliases) {
+    this.map(alias, this.config[this.aliases[alias]] || this.app[this.aliases[alias]]);
+  }
 
-    fn = this.app[key];
-    if (typeof fn === 'function') {
-      return fn.call(this.app, val);
+  for (var key in args) {
+    if (typeof this.config[key] === 'function') {
+      this.config[key].call(this.app, args[key]);
     }
-
-    fn = this.app[this.aliases[key]];
-    if (typeof fn === 'function') {
-      return fn.call(this.app, val);
-    }
-  }, this);
-  return this;
+  }
 };
 
 /**

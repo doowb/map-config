@@ -36,7 +36,7 @@ var pkg = require('../package.json');
  */
 
 var config = MapConfig(app)
-  .map('dependencies', 'addDependencies')
+  .alias('devDependencies', 'addDependencies')
   .process(pkg);
 
 console.log(app);

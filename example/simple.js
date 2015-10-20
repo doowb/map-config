@@ -4,5 +4,5 @@ var MapConfig = require('../');
 var pkg = require('../package.json');
 
 var config = MapConfig(console)
-  .map('name', 'log')
+  .alias('name', 'log')
   .process(pkg);
