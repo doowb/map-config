@@ -16,7 +16,7 @@ var MapConfig = require('map-config');
 
 ## API
 
-### [MapConfig](index.js#L23)
+### [MapConfig](index.js#L21)
 
 Create a new instance of MapConfig with a specified map and application.
 
@@ -31,7 +31,7 @@ Create a new instance of MapConfig with a specified map and application.
 var mapper = new MapConfig(app, map);
 ```
 
-### [.map](index.js#L54)
+### [.map](index.js#L58)
 
 Map a properties to methods and/or functions.
 
@@ -50,14 +50,14 @@ mapper
   });
 ```
 
-### [.alias](index.js#L75)
+### [.alias](index.js#L79)
 
 Alias properties to methods on the `app`.
 
 **Params**
 
-* `key` **{String}**: property key to map.
-* `alias` **{String}**: Method to call instead of the key.
+* `alias` **{String}**: Property being mapped from..
+* `key` **{String}**: Property being mapped to on the app.
 * `returns` **{Object}** `this`: to enable chaining
 
 **Example**
@@ -66,7 +66,7 @@ Alias properties to methods on the `app`.
 mapper.alias('foo', 'bar');
 ```
 
-### [.process](index.js#L90)
+### [.process](index.js#L94)
 
 Process a configuration object with the already configured `map` and `app`.
 
