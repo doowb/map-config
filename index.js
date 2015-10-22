@@ -23,7 +23,7 @@ function MapConfig (app, config) {
     return new MapConfig(app, config);
   }
 
-  this.app = app;
+  this.app = app || {};
   this.aliases = {};
   this.config = {};
 
@@ -94,8 +94,9 @@ MapConfig.prototype.alias = function(alias, key) {
 MapConfig.prototype.process = function(args) {
   args = args || {};
 
-  for (var alias in this.aliases) {
-    this.map(alias, this.config[this.aliases[alias]] || this.app[this.aliases[alias]]);
+  for (var key in this.aliases) {
+    var alias = this.aliases[key];
+    this.map(key, this.config[alias] || this.app[alias]);
   }
 
   for (var key in args) {
