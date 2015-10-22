@@ -1,7 +1,7 @@
 {
   "name": "map-config",
   "description": "Map configuration objects to application methods.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/doowb/map-config",
   "author": "Brian Woodward (https://github.com/doowb)",
   "repository": "doowb/map-config",
@@ -10,8 +10,7 @@
   },
   "license": "MIT",
   "files": [
-    "index.js",
-    "utils.js"
+    "index.js"
   ],
   "main": "index.js",
   "engines": {
@@ -21,7 +20,7 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "base-methods": "^0.2.14",
+    "base-methods": "^0.3.0",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.1",
     "gulp-jshint": "^1.11.2",
@@ -39,6 +38,5 @@
       ]
     }
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
