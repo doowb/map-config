@@ -48,9 +48,7 @@ function MapConfig(app, config) {
  * mapper.addKey('foo');
  * console.log(mapper.keys);
  * //=> ['foo']
- * ```
  *
- * ```
  * var mapper1 = new MapConfig();
  * var mapper2 = new MapConfig();
  * mapper2.map('foo');
@@ -61,6 +59,8 @@ function MapConfig(app, config) {
  *   mapper2.process(config);
  * });
  * mapper1.addKey('mapper2', mapper2.keys);
+ * console.log(mapper1.keys);
+ * //=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
  * ```
  *
  * @param {String} `key` key to push onto `.keys`
