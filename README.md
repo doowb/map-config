@@ -93,7 +93,7 @@ mapper
   });
 ```
 
-### [.alias](index.js#L134)
+### [.alias](index.js#L143)
 
 Alias properties to methods on the `app`.
 
@@ -109,7 +109,7 @@ Alias properties to methods on the `app`.
 mapper.alias('foo', 'bar');
 ```
 
-### [.process](index.js#L150)
+### [.process](index.js#L159)
 
 Process a configuration object with the already configured `map` and `app`.
 
