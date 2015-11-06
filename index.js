@@ -104,15 +104,24 @@ MapConfig.prototype.addKey = function(key, arr) {
  * ```
 
  * @param  {String} `key` property key to map.
- * @param  {Function} `fn` Optional function to call when a config has the given key.
+ * @param  {Function|Object} `val` Optional function to call when a config has the given key. May also pass another instance of MapConfig to be processed.
  * @return {Object} `this` to enable chaining
  * @api public
  */
 
 MapConfig.prototype.map = function(key, val) {
+  // allow passing another map-config object in as a value
+  if (isMapConfig(val)) {
+    this.map(key, function(config) {
+      return val.process(config);
+    });
+    return this.addKey(key, val.keys);
+  }
+
   if (typeof val !== 'function') {
     val = this.app[key];
   }
+
   this.config[key] = val;
   this.addKey(key);
   return this;
@@ -162,6 +171,12 @@ MapConfig.prototype.process = function(args) {
     }
   }
 };
+
+function isMapConfig(val) {
+  return val
+    && typeof val === 'object'
+    && typeof val.process === 'function';
+}
 
 /**
  * Exposes MapConfig
