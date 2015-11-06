@@ -93,13 +93,14 @@ MapConfig.prototype.alias = function(alias, key) {
 
 MapConfig.prototype.process = function(args) {
   args = args || {};
+  var key;
 
-  for (var key in this.aliases) {
+  for (key in this.aliases) {
     var alias = this.aliases[key];
     this.map(key, this.config[alias] || this.app[alias]);
   }
 
-  for (var key in args) {
+  for (key in args) {
     if (typeof this.config[key] === 'function') {
       this.config[key].call(this.app, args[key]);
     }
