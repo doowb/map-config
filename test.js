@@ -141,6 +141,74 @@ describe('map-config', function() {
     });
   });
 
+  describe('keys', function() {
+    it('should add a key to the `.keys` array', function() {
+      var mapper = new MapConfig();
+      mapper.addKey('foo');
+      assert.deepEqual(mapper.keys, ['foo']);
+    });
+
+    it('should not add a key to the `.keys` array when the key already exists', function() {
+      var mapper = new MapConfig();
+      mapper.addKey('foo');
+      mapper.addKey('foo');
+      assert.deepEqual(mapper.keys, ['foo']);
+    });
+
+    it('should add an array of namespaced keys to the `.keys` array', function() {
+      var mapper = new MapConfig();
+      mapper.addKey('foo', ['bar', 'baz', 'bang']);
+      assert.deepEqual(mapper.keys, ['foo.bar', 'foo.baz', 'foo.bang']);
+    });
+
+    it('should add an array of namespaced keys to the `.keys` array when key already exists', function() {
+      var mapper = new MapConfig();
+      mapper.addKey('foo');
+      mapper.addKey('foo', ['bar', 'baz', 'bang']);
+      assert.deepEqual(mapper.keys, ['foo.bar', 'foo.baz', 'foo.bang']);
+    });
+
+    it('should extend an array of namespaced keys to the `.keys` array when key already exists', function() {
+      var mapper = new MapConfig();
+      mapper.addKey('foo');
+      mapper.addKey('foo', ['bar', 'baz', 'bang']);
+      mapper.addKey('foo', ['beep', 'boop', 'bop']);
+      assert.deepEqual(mapper.keys, ['foo.bar', 'foo.baz', 'foo.bang', 'foo.beep', 'foo.boop', 'foo.bop']);
+    });
+
+    it('should add mapped keys to `.keys` when using `.map`', function() {
+      var app = {beep: 'boop'};
+      var mapper = new MapConfig(app)
+        .map('foo', function() {});
+
+      assert.deepEqual(mapper.keys, ['foo']);
+    });
+
+    it('should add aliased keys to `.keys` when using `.alias`', function() {
+      var app = {beep: 'boop'};
+      var mapper = new MapConfig(app)
+        .alias('foo', 'bar');
+
+      assert.deepEqual(mapper.keys, ['foo']);
+    });
+
+    it('should extend an array of mapped keys from one mapper onto a key from another mapper.', function() {
+      var mapper1 = new MapConfig({});
+      mapper1.map('foo');
+      mapper1.map('bar');
+      mapper1.map('baz');
+
+      var mapper2 = new MapConfig({});
+      mapper2.map('mapper1', function(config) {
+        mapper1.process(config);
+      });
+      mapper2.addKey('mapper1', mapper1.keys);
+
+      assert.deepEqual(mapper1.keys, ['foo', 'bar', 'baz']);
+      assert.deepEqual(mapper2.keys, ['mapper1.foo', 'mapper1.bar', 'mapper1.baz']);
+    });
+  });
+
   describe('map', function() {
     it('should pass a config and the app instance to mapped functions from `.map`', function() {
       var called = false;
