@@ -31,7 +31,56 @@ Create a new instance of MapConfig with a specified map and application.
 var mapper = new MapConfig(app, map);
 ```
 
-### [.addKey](index.js#L72)
+### [.map](index.js#L59)
+
+Map a properties to methods and/or functions.
+
+**Params**
+
+* `key` **{String}**: property key to map.
+* `val` **{Function|Object}**: Optional function to call when a config has the given key. May also pass another instance of MapConfig to be processed.
+* `returns` **{Object}** `this`: to enable chaining
+
+**Example**
+
+```js
+mapper
+  .map('baz')
+  .map('bang', function(config) {
+  });
+```
+
+### [.alias](index.js#L90)
+
+Alias properties to methods on the `app`.
+
+**Params**
+
+* `alias` **{String}**: Property being mapped from..
+* `key` **{String}**: Property being mapped to on the app.
+* `returns` **{Object}** `this`: to enable chaining
+
+**Example**
+
+```js
+mapper.alias('foo', 'bar');
+```
+
+### [.process](index.js#L106)
+
+Process a configuration object with the already configured `map` and `app`.
+
+**Params**
+
+* `config` **{Object}**: Configuration object to map to application methods.
+
+**Example**
+
+```js
+mapper.process(config);
+```
+
+### [.addKey](index.js#L151)
 
 Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array. This is useful for mapping sub configs to a key in a parent config.
 
@@ -60,55 +109,6 @@ mapper1.map('mapper2', function(config) {
 mapper1.addKey('mapper2', mapper2.keys);
 console.log(mapper1.keys);
 //=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
-```
-
-### [.map](index.js#L112)
-
-Map a properties to methods and/or functions.
-
-**Params**
-
-* `key` **{String}**: property key to map.
-* `val` **{Function|Object}**: Optional function to call when a config has the given key. May also pass another instance of MapConfig to be processed.
-* `returns` **{Object}** `this`: to enable chaining
-
-**Example**
-
-```js
-mapper
-  .map('baz')
-  .map('bang', function(config) {
-  });
-```
-
-### [.alias](index.js#L143)
-
-Alias properties to methods on the `app`.
-
-**Params**
-
-* `alias` **{String}**: Property being mapped from..
-* `key` **{String}**: Property being mapped to on the app.
-* `returns` **{Object}** `this`: to enable chaining
-
-**Example**
-
-```js
-mapper.alias('foo', 'bar');
-```
-
-### [.process](index.js#L159)
-
-Process a configuration object with the already configured `map` and `app`.
-
-**Params**
-
-* `config` **{Object}**: Configuration object to map to application methods.
-
-**Example**
-
-```js
-mapper.process(config);
 ```
 
 ## Related projects

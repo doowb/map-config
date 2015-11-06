@@ -41,59 +41,6 @@ function MapConfig(app, config) {
 }
 
 /**
- * Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array.
- * This is useful for mapping sub configs to a key in a parent config.
- *
- * ```js
- * mapper.addKey('foo');
- * console.log(mapper.keys);
- * //=> ['foo']
- *
- * var mapper1 = new MapConfig();
- * var mapper2 = new MapConfig();
- * mapper2.map('foo');
- * mapper2.map('bar');
- * mapper2.map('baz');
- *
- * mapper1.map('mapper2', function(config) {
- *   mapper2.process(config);
- * });
- * mapper1.addKey('mapper2', mapper2.keys);
- * console.log(mapper1.keys);
- * //=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
- * ```
- *
- * @param {String} `key` key to push onto `.keys`
- * @param {Array} `arr` Array of sub keys to push onto `.keys`
- * @return {Object} `this` for chaining
- * @api public
- */
-
-MapConfig.prototype.addKey = function(key, arr) {
-  var idx = this.keys.indexOf(key);
-  if (Array.isArray(arr)) {
-    if (idx === -1) {
-      this.keys = this.keys.concat(arr.map(function(val) {
-        return [key, val].join('.');
-      }));
-    } else {
-      this.keys.splice(idx, 1);
-      var vals = arr.map(function(val) {
-        return [key, val].join('.');
-      })
-      .filter(function(val) {
-        return this.keys.indexOf(val) === -1;
-      }.bind(this));
-
-      this.keys.push.apply(this.keys, vals);
-    }
-  } else if (idx === -1) {
-    this.keys.push(key);
-  }
-  return this;
-};
-
-/**
  * Map a properties to methods and/or functions.
  *
  * ```js
@@ -171,6 +118,66 @@ MapConfig.prototype.process = function(args) {
     }
   }
 };
+
+/**
+ * Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array.
+ * This is useful for mapping sub configs to a key in a parent config.
+ *
+ * ```js
+ * mapper.addKey('foo');
+ * console.log(mapper.keys);
+ * //=> ['foo']
+ *
+ * var mapper1 = new MapConfig();
+ * var mapper2 = new MapConfig();
+ * mapper2.map('foo');
+ * mapper2.map('bar');
+ * mapper2.map('baz');
+ *
+ * mapper1.map('mapper2', function(config) {
+ *   mapper2.process(config);
+ * });
+ * mapper1.addKey('mapper2', mapper2.keys);
+ * console.log(mapper1.keys);
+ * //=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
+ * ```
+ *
+ * @param {String} `key` key to push onto `.keys`
+ * @param {Array} `arr` Array of sub keys to push onto `.keys`
+ * @return {Object} `this` for chaining
+ * @api public
+ */
+
+MapConfig.prototype.addKey = function(key, arr) {
+  var idx = this.keys.indexOf(key);
+  if (Array.isArray(arr)) {
+    if (idx === -1) {
+      this.keys = this.keys.concat(arr.map(function(val) {
+        return [key, val].join('.');
+      }));
+    } else {
+      this.keys.splice(idx, 1);
+      var vals = arr.map(function(val) {
+        return [key, val].join('.');
+      })
+      .filter(function(val) {
+        return this.keys.indexOf(val) === -1;
+      }.bind(this));
+
+      this.keys.push.apply(this.keys, vals);
+    }
+  } else if (idx === -1) {
+    this.keys.push(key);
+  }
+  return this;
+};
+
+/**
+ * Check if given value looks like an instance of `map-config`
+ *
+ * @param  {*} `val` Value to check
+ * @return {Boolean} `true` if instance of `map-config`
+ */
 
 function isMapConfig(val) {
   return val
