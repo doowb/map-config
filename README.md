@@ -31,7 +31,7 @@ Create a new instance of MapConfig with a specified map and application.
 var mapper = new MapConfig(app, map);
 ```
 
-### [.map](index.js#L59)
+### [.map](index.js#L61)
 
 Map a properties to methods and/or functions.
 
@@ -50,7 +50,7 @@ mapper
   });
 ```
 
-### [.alias](index.js#L90)
+### [.alias](index.js#L92)
 
 Alias properties to methods on the `app`.
 
@@ -66,7 +66,7 @@ Alias properties to methods on the `app`.
 mapper.alias('foo', 'bar');
 ```
 
-### [.process](index.js#L106)
+### [.process](index.js#L108)
 
 Process a configuration object with the already configured `map` and `app`.
 
@@ -80,7 +80,7 @@ Process a configuration object with the already configured `map` and `app`.
 mapper.process(config);
 ```
 
-### [.addKey](index.js#L151)
+### [.addKey](index.js#L153)
 
 Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array. This is useful for mapping sub configs to a key in a parent config.
 
