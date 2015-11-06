@@ -9,19 +9,18 @@
 
 /* deps:mocha */
 var assert = require('assert');
-var should = require('should');
 var MapConfig = require('./');
 
-describe('map-config', function () {
-  describe('constructor', function () {
-    it('should create a new instance without `new`', function () {
+describe('map-config', function() {
+  describe('constructor', function() {
+    it('should create a new instance without `new`', function() {
       assert(MapConfig() instanceof MapConfig);
     });
 
-    it('should pass a config and the app instance to mapped methods', function () {
+    it('should pass a config and the app instance to mapped methods', function() {
       var called = false;
       var map = {foo: 'bar', baz: 'bang'};
-      var app = {bar: function (config) {
+      var app = {bar: function(config) {
         called = true;
         assert.deepEqual(config, {baz: 'beep'});
         assert.deepEqual(this, app);
@@ -32,9 +31,9 @@ describe('map-config', function () {
       assert(called);
     });
 
-    it('should not blow up if `app` is undefined', function (done) {
+    it('should not blow up if `app` is undefined', function(done) {
       var app = {};
-      app.set = function (key, val) {
+      app.set = function(key, val) {
         app[key] = val;
         return app;
       };
@@ -42,7 +41,7 @@ describe('map-config', function () {
       function one(app) {
         var inst = new MapConfig(app)
           .map('two', two(app.two))
-          .map('set')
+          .map('set');
 
         return function(args) {
           inst.process(args);
@@ -55,7 +54,7 @@ describe('map-config', function () {
 
       function two(app) {
         var inst = new MapConfig(app)
-          .map('set')
+          .map('set');
 
         return function(args) {
           inst.process(args);
@@ -66,9 +65,9 @@ describe('map-config', function () {
       one(app)({});
     });
 
-    it('should pass a config and the app instance to mapped functions', function () {
+    it('should pass a config and the app instance to mapped functions', function() {
       var called = false;
-      var map = {foo: function (config) {
+      var map = {foo: function(config) {
         called = true;
         assert.deepEqual(config, {baz: 'beep'});
         assert.deepEqual(this, app);
@@ -81,12 +80,12 @@ describe('map-config', function () {
       assert(called);
     });
 
-    it('should call a method on the app mapped through the map', function () {
+    it('should call a method on the app mapped through the map', function() {
       var output = [];
       var map = {foo: 'bar'};
 
       var app = {
-        bar: function (config) {
+        bar: function(config) {
           output.push('bar ' + config.baz);
         }
       };
@@ -98,12 +97,12 @@ describe('map-config', function () {
       assert.deepEqual(output, ['bar beep']);
     });
 
-    it('should not map anything when config is empty', function () {
+    it('should not map anything when config is empty', function() {
       var output = [];
       var map = {foo: 'bar'};
 
       var app = {
-        bar: function (config) {
+        bar: function(config) {
           output.push('bar ' + config.baz);
         }
       };
@@ -114,10 +113,10 @@ describe('map-config', function () {
       assert.deepEqual(output, []);
     });
 
-    it('should not map anything when nothing is configured', function () {
+    it('should not map anything when nothing is configured', function() {
       var output = [];
       var app = {
-        bar: function (config) {
+        bar: function(config) {
           output.push('bar ' + config.baz);
         }
       };
@@ -128,7 +127,7 @@ describe('map-config', function () {
       assert.deepEqual(output, []);
     });
 
-    it('should not map anything when aliased property is not a method', function () {
+    it('should not map anything when aliased property is not a method', function() {
       var output = [];
       var app = {
         bar: 'baz'
@@ -142,13 +141,13 @@ describe('map-config', function () {
     });
   });
 
-  describe('map', function () {
-    it('should pass a config and the app instance to mapped functions from `.map`', function () {
+  describe('map', function() {
+    it('should pass a config and the app instance to mapped functions from `.map`', function() {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app)
-        .map('foo', function (config) {
+        .map('foo', function(config) {
           called = true;
           assert.deepEqual(config, {baz: 'beep'});
           assert.deepEqual(this, app);
@@ -157,10 +156,10 @@ describe('map-config', function () {
       assert(called);
     });
 
-    it('should call same method on the app as specified through `.map`', function () {
+    it('should call same method on the app as specified through `.map`', function() {
       var output = [];
       var app = {
-        foo: function (config) {
+        foo: function(config) {
           output.push('foo ' + config.baz);
         }
       };
@@ -173,11 +172,11 @@ describe('map-config', function () {
       assert.deepEqual(output, ['foo beep']);
     });
 
-    it('should not map anything when config is empty from `.map`', function () {
+    it('should not map anything when config is empty from `.map`', function() {
       var output = [];
 
       var app = {
-        bar: function (config) {
+        bar: function(config) {
           output.push('bar ' + config.baz);
         }
       };
@@ -190,10 +189,10 @@ describe('map-config', function () {
     });
   });
 
-  describe('alias', function () {
-    it('should pass a config and the app instance to mapped methods from `.alias`', function () {
+  describe('alias', function() {
+    it('should pass a config and the app instance to mapped methods from `.alias`', function() {
       var called = false;
-      var app = {bar: function (config) {
+      var app = {bar: function(config) {
         called = true;
         assert.deepEqual(config, {baz: 'beep'});
         assert.deepEqual(this, app);
@@ -206,10 +205,10 @@ describe('map-config', function () {
       assert(called);
     });
 
-    it('should call a method on the app mapped through the map from `.alias`', function () {
+    it('should call a method on the app mapped through the map from `.alias`', function() {
       var output = [];
       var app = {
-        bar: function (config) {
+        bar: function(config) {
           output.push('bar ' + config.baz);
         }
       };

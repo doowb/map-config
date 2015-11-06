@@ -18,7 +18,7 @@
  * @api public
  */
 
-function MapConfig (app, config) {
+function MapConfig(app, config) {
   if (!(this instanceof MapConfig)) {
     return new MapConfig(app, config);
   }
