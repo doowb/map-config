@@ -257,7 +257,6 @@ describe('map-config', function() {
       var output = [];
       var app = {
         foo: function(config) {
-          console.log('foo', config);
           output.push('foo ' + config.baz);
         },
         bar: function(config) {

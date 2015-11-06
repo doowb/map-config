@@ -23,6 +23,8 @@ function MapConfig(app, config) {
     return new MapConfig(app, config);
   }
 
+  define(this, 'isMapConfig', true);
+
   this.app = app || {};
   this.keys = [];
   this.aliases = {};
@@ -182,7 +184,23 @@ MapConfig.prototype.addKey = function(key, arr) {
 function isMapConfig(val) {
   return val
     && typeof val === 'object'
-    && typeof val.process === 'function';
+    && val.isMapConfig === true;
+}
+
+/**
+ * Define a property on an object.
+ *
+ * @param  {Object} `obj` Object to define property on.
+ * @param  {String} `prop` Property to define.
+ * @param  {*} `val` Value of property to define.
+ */
+
+function define(obj, prop, val) {
+  Object.defineProperty(obj, prop, {
+    enumerable: false,
+    configurable: true,
+    value: val
+  });
 }
 
 /**
