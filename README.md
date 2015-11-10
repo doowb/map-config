@@ -31,57 +31,14 @@ Create a new instance of MapConfig with a specified map and application.
 var mapper = new MapConfig(app, map);
 ```
 
-### [.addKey](index.js#L72)
-
-Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array. This is useful for mapping sub configs to a key in a parent config.
-
-```
-var mapper1 = new MapConfig();
-var mapper2 = new MapConfig();
-mapper2.map('foo');
-mapper2.map('bar');
-mapper2.map('baz');
-mapper1.map('mapper2', function(config) {
-  mapper2.process(config);
-});
-mapper1.addKey('mapper2', mapper2.keys);
-```
-
-**Params**
-
-* `key` **{String}**: key to push onto `.keys`
-* `arr` **{Array}**: Array of sub keys to push onto `.keys`
-* `returns` **{Object}** `this`: for chaining
-
-**Examples**
-
-```js
-mapper.addKey('foo');
-console.log(mapper.keys);
-//=> ['foo']
-```
-
-```
-var mapper1 = new MapConfig();
-var mapper2 = new MapConfig();
-mapper2.map('foo');
-mapper2.map('bar');
-mapper2.map('baz');
-
-mapper1.map('mapper2', function(config) {
-  mapper2.process(config);
-});
-mapper1.addKey('mapper2', mapper2.keys);
-```
-
-### [.map](index.js#L112)
+### [.map](index.js#L61)
 
 Map a properties to methods and/or functions.
 
 **Params**
 
 * `key` **{String}**: property key to map.
-* `fn` **{Function}**: Optional function to call when a config has the given key.
+* `val` **{Function|Object}**: Optional function to call when a config has the given key. May also pass another instance of MapConfig to be processed.
 * `returns` **{Object}** `this`: to enable chaining
 
 **Example**
@@ -93,7 +50,7 @@ mapper
   });
 ```
 
-### [.alias](index.js#L134)
+### [.alias](index.js#L92)
 
 Alias properties to methods on the `app`.
 
@@ -109,7 +66,7 @@ Alias properties to methods on the `app`.
 mapper.alias('foo', 'bar');
 ```
 
-### [.process](index.js#L150)
+### [.process](index.js#L108)
 
 Process a configuration object with the already configured `map` and `app`.
 
@@ -121,6 +78,37 @@ Process a configuration object with the already configured `map` and `app`.
 
 ```js
 mapper.process(config);
+```
+
+### [.addKey](index.js#L153)
+
+Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array. This is useful for mapping sub configs to a key in a parent config.
+
+**Params**
+
+* `key` **{String}**: key to push onto `.keys`
+* `arr` **{Array}**: Array of sub keys to push onto `.keys`
+* `returns` **{Object}** `this`: for chaining
+
+**Example**
+
+```js
+mapper.addKey('foo');
+console.log(mapper.keys);
+//=> ['foo']
+
+var mapper1 = new MapConfig();
+var mapper2 = new MapConfig();
+mapper2.map('foo');
+mapper2.map('bar');
+mapper2.map('baz');
+
+mapper1.map('mapper2', function(config) {
+  mapper2.process(config);
+});
+mapper1.addKey('mapper2', mapper2.keys);
+console.log(mapper1.keys);
+//=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
 ```
 
 ## Related projects

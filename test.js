@@ -207,6 +207,19 @@ describe('map-config', function() {
       assert.deepEqual(mapper1.keys, ['foo', 'bar', 'baz']);
       assert.deepEqual(mapper2.keys, ['mapper1.foo', 'mapper1.bar', 'mapper1.baz']);
     });
+
+    it('should add an array of mapped keys when a mapper is passed into `.map`.', function() {
+      var mapper1 = new MapConfig({});
+      mapper1.map('foo');
+      mapper1.map('bar');
+      mapper1.map('baz');
+
+      var mapper2 = new MapConfig({});
+      mapper2.map('mapper1', mapper1);
+
+      assert.deepEqual(mapper1.keys, ['foo', 'bar', 'baz']);
+      assert.deepEqual(mapper2.keys, ['mapper1.foo', 'mapper1.bar', 'mapper1.baz']);
+    });
   });
 
   describe('map', function() {
@@ -238,6 +251,35 @@ describe('map-config', function() {
       mapper.process(config);
 
       assert.deepEqual(output, ['foo beep']);
+    });
+
+    it('should call a child mapper when passed through `.map`', function() {
+      var output = [];
+      var app = {
+        foo: function(config) {
+          output.push('foo ' + config.baz);
+        },
+        bar: function(config) {
+          output.push('bar ' + config.bang);
+        }
+      };
+
+      var config = {
+        child: {
+          foo: {baz: 'beep'},
+          bar: {bang: 'boop'}
+        }
+      };
+
+      var mapper1 = new MapConfig(app)
+        .map('foo')
+        .map('bar');
+
+      var mapper2 = new MapConfig()
+        .map('child', mapper1);
+
+      mapper2.process(config);
+      assert.deepEqual(output, ['foo beep', 'bar boop']);
     });
 
     it('should not map anything when config is empty from `.map`', function() {
