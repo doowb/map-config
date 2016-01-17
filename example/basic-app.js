@@ -37,6 +37,8 @@ var pkg = require('../package.json');
 
 var config = MapConfig(app)
   .alias('devDependencies', 'addDependencies')
-  .process(pkg);
+  .process(pkg, function(err) {
+    if (err) return console.error(err);
+    console.log(app);
+  });
 
-console.log(app);
