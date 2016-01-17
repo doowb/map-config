@@ -128,19 +128,18 @@ MapConfig.prototype.process = function(args, cb) {
     this.map(key, this.config[alias] || this.app[alias]);
   }
 
-  var keys = [];
-  for (key in args) {
-    if (typeof this.config[key] === 'function') {
-      keys.push(key);
-    }
-  }
-  async.eachSeries(keys, function(key, next) {
+  async.eachOfSeries(args, function(val, key, next) {
     var fn = this.config[key];
-    if (fn.async === true) {
-      return fn.call(this.app, args[key], next);
+    if (typeof fn !== 'function') {
+      return next();
     }
+
+    if (fn.async === true) {
+      return fn.call(this.app, val, next);
+    }
+
     try {
-      fn.call(this.app, args[key]);
+      fn.call(this.app, val);
       return next();
     } catch(err) {
       return next(err);
