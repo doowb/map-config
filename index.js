@@ -45,7 +45,7 @@ function MapConfig(app, config) {
 }
 
 /**
- * Map a properties to methods and/or functions.
+ * Map properties to methods and/or functions.
  *
  * ```js
  * mapper
@@ -162,8 +162,8 @@ MapConfig.prototype.process = function(args, cb) {
  * mapper2.map('bar');
  * mapper2.map('baz');
  *
- * mapper1.map('mapper2', function(config) {
- *   mapper2.process(config);
+ * mapper1.map('mapper2', function(config, next) {
+ *   mapper2.process(config, next);
  * });
  * mapper1.addKey('mapper2', mapper2.keys);
  * console.log(mapper1.keys);
