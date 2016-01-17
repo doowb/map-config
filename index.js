@@ -7,6 +7,8 @@
 
 'use strict';
 
+var async = require('async');
+
 /**
  * Create a new instance of MapConfig with a specified map and application.
  *
@@ -61,13 +63,17 @@ function MapConfig(app, config) {
 MapConfig.prototype.map = function(key, val) {
   // allow passing another map-config object in as a value
   if (isMapConfig(val)) {
-    this.map(key, function(config) {
-      return val.process(config);
+    this.map(key, function(config, next) {
+      val.process(config, next);
     });
     return this.addKey(key, val.keys);
   }
 
-  if (typeof val !== 'function') {
+  if (typeof val === 'function') {
+    if (/, *(cb|callback|next)/.test(val.toString())) {
+      val.async = true;
+    }
+  } else {
     val = this.app[key];
   }
 
@@ -102,11 +108,19 @@ MapConfig.prototype.alias = function(alias, key) {
  * mapper.process(config);
  * ```
  * @param  {Object} `config` Configuration object to map to application methods.
+ * @param  {Function} `cb` Optional callback function that will be called when finished or if an error occurs during processing.
  * @api public
  */
 
-MapConfig.prototype.process = function(args) {
+MapConfig.prototype.process = function(args, cb) {
+  if (typeof args === 'function') {
+    cb = args;
+    args = null;
+  }
   args = args || {};
+  cb = cb || function(err) {
+    if (err) throw err;
+  };
   var key;
 
   for (key in this.aliases) {
@@ -114,11 +128,23 @@ MapConfig.prototype.process = function(args) {
     this.map(key, this.config[alias] || this.app[alias]);
   }
 
-  for (key in args) {
-    if (typeof this.config[key] === 'function') {
-      this.config[key].call(this.app, args[key]);
+  async.eachOfSeries(args, function(val, key, next) {
+    var fn = this.config[key];
+    if (typeof fn !== 'function') {
+      return next();
     }
-  }
+
+    if (fn.async === true) {
+      return fn.call(this.app, val, next);
+    }
+
+    try {
+      fn.call(this.app, val);
+      return next();
+    } catch(err) {
+      return next(err);
+    }
+  }.bind(this), cb);
 };
 
 /**

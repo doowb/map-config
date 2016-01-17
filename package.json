@@ -36,7 +36,9 @@
       ]
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "async": "^1.5.2"
+  },
   "contributors": [
     {
       "name": "Brian Woodward",

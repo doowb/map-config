@@ -52,6 +52,8 @@ var verbConfig = MapConfig(app)
 
 var config = MapConfig(app)
   .map('verb', verbConfig)
-  .process(pkg);
+  .process(pkg, function(err) {
+    if (err) return console.error(err);
+    console.log(app);
+  });
 
-console.log(app);
