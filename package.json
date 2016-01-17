@@ -30,9 +30,11 @@
   "verb": {
     "related": {
       "list": [
-        "verb",
         "assemble",
-        "templates"
+        "generate",
+        "templates",
+        "update",
+        "verb"
       ]
     }
   },
@@ -50,5 +52,10 @@
       "email": "github@sellside.com",
       "url": "https://github.com/jonschlinkert"
     }
+  ],
+  "keywords": [
+    "config",
+    "configuration",
+    "settings"
   ]
 }
