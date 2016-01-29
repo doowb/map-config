@@ -372,6 +372,17 @@ describe('map-config', function() {
   });
 
   describe('process', function() {
+    it('should bind the process callback to the app', function(done) {
+      var app = {beep: 'boop'};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app);
+      mapper.process(config, function(err) {
+        assert.deepEqual(this, app);
+        if (err) return done(err);
+        done();
+      });
+    });
+
     it('should process a config and call async function when done', function(done) {
       var called = false;
       var app = {beep: 'boop'};
