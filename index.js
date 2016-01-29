@@ -144,7 +144,7 @@ MapConfig.prototype.process = function(args, cb) {
     } catch(err) {
       return next(err);
     }
-  }.bind(this), cb);
+  }.bind(this), cb.bind(this.app));
 };
 
 /**
