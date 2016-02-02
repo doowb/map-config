@@ -7,7 +7,7 @@
 
 'use strict';
 
-/* deps:mocha */
+require('mocha');
 var assert = require('assert');
 var MapConfig = require('./');
 
@@ -332,26 +332,83 @@ describe('map-config', function() {
   });
 
   describe('alias', function() {
-    it('should pass a config and the app instance to mapped methods from `.alias`', function(done) {
+    it('should map methods from `.alias` to app methods', function(done) {
       var called = false;
-      var app = {bar: function(config) {
-        called = true;
-        assert.deepEqual(config, {baz: 'beep'});
-        assert.deepEqual(this, app);
-      }};
-      var config = {foo: {baz: 'beep'}};
+      var app = {
+        bar: function(config) {
+          called = true;
+          assert.deepEqual(config, {
+            baz: 'beep'
+          });
+          assert.deepEqual(this, app);
+        }
+      };
+
       var mapper = new MapConfig(app)
         .alias('foo', 'bar')
         .alias('baz', 'bang');
 
+      var config = {foo: {baz: 'beep'}};
       mapper.process(config, function(err) {
-        return done(err);
+        if (err) return done(err);
         assert(called);
         done();
       });
     });
 
-    it('should call a method on the app mapped through the map from `.alias`', function(done) {
+    it('should map methods from `.alias` to previously mapped methods', function(done) {
+      var called = false;
+
+      var app = {cache: {}};
+      app.set = function(obj) {
+        called = true;
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            app.cache[key] = obj[key];
+          }
+        }
+      };
+
+      var mapper = new MapConfig(app)
+        .map('set')
+        .alias('foo', 'set');
+
+      var config = {foo: {bar: 'baz'}};
+      mapper.process(config, function(err) {
+        if (err) return done(err);
+        assert(called);
+        assert.deepEqual(app.cache, config.foo);
+        done();
+      });
+    });
+
+    it('should map methods from `.alias` to methods mapped afterwards', function(done) {
+      var called = false;
+
+      var app = {cache: {}};
+      app.set = function(obj) {
+        called = true;
+        for (var key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            app.cache[key] = obj[key];
+          }
+        }
+      };
+
+      var mapper = new MapConfig(app)
+        .alias('foo', 'set')
+        .map('set')
+
+      var config = {foo: {bar: 'baz'}};
+      mapper.process(config, function(err) {
+        if (err) return done(err);
+        assert(called);
+        assert.deepEqual(app.cache, config.foo);
+        done();
+      });
+    });
+
+    it('should invoke app methods from aliased methods', function(done) {
       var output = [];
       var app = {
         bar: function(config) {
@@ -465,7 +522,7 @@ describe('map-config', function() {
       try {
         mapper.process(config);
         done(new Error('expected an error.'));
-      } catch(err) {
+      } catch (err) {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
@@ -478,18 +535,39 @@ describe('map-config', function() {
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app)
-        .map('foo', function(config, next) {
+        .map('foo', function(config) {
           called = true;
-          next(new Error('test error'));
+          throw new Error('test error');
         });
 
       try {
         mapper.process(config);
         done(new Error('expected an error.'));
-      } catch(err) {
+      } catch (err) {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
+        done();
+      }
+    });
+
+    it('should throw when a fn is async but no done is passed to process', function(done) {
+      var called = false;
+      var app = {beep: 'boop'};
+      var config = {foo: {baz: 'beep'}};
+      var mapper = new MapConfig(app)
+        .map('foo', function(config, next) {
+          called = true;
+          next();
+        });
+
+      try {
+        mapper.process(config);
+        done(new Error('expected an error.'));
+      } catch (err) {
+        assert(err);
+        assert(!called);
+        assert.equal(err.message, 'expected a callback function');
         done();
       }
     });

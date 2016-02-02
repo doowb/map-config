@@ -7,6 +7,7 @@
 
 'use strict';
 
+var unique = require('array-unique');
 var async = require('async');
 
 /**
@@ -31,15 +32,11 @@ function MapConfig(app, config) {
   this.keys = [];
   this.aliases = {};
   this.config = {};
+  this.async = false;
 
-  if (config) {
+  if (config && typeof config === 'object') {
     for (var key in config) {
-      var val = config[key];
-      if (typeof val === 'string') {
-        this.alias(key, val);
-      } else {
-        this.map(key, val);
-      }
+      this.map(key, config[key]);
     }
   }
 }
@@ -61,16 +58,17 @@ function MapConfig(app, config) {
  */
 
 MapConfig.prototype.map = function(key, val) {
-  // allow passing another map-config object in as a value
   if (isMapConfig(val)) {
-    this.map(key, function(config, next) {
-      val.process(config, next);
-    });
-    return this.addKey(key, val.keys);
+    return this.subConfig.apply(this, arguments);
+  }
+
+  if (typeof val === 'string') {
+    return this.alias.apply(this, arguments);
   }
 
   if (typeof val === 'function') {
-    if (/, *(cb|callback|next)/.test(val.toString())) {
+    if (hasCallback(val)) {
+      this.async = true;
       val.async = true;
     }
   } else {
@@ -83,21 +81,48 @@ MapConfig.prototype.map = function(key, val) {
 };
 
 /**
- * Alias properties to methods on the `app`.
+ * Private method for mapping another map-config instance to `key`.
+ *
+ * ```js
+ * var one = new MapConfig();
+ * one.map('foo', function(val) {
+ *   // do stuff
+ * });
+ *
+ * var two = new MapConfig();
+ * two.subConfig('bar', one);
+ * ```
+ * @param {String} `key` The property name to map to `val`
+ * @param {Object} `val` Instance of map-config
+ * @return {Object} Returns the instance for chaining.
+ */
+
+MapConfig.prototype.subConfig = function(key, val) {
+  this.map(key, function(config, next) {
+    val.process(config, next);
+  });
+  return this.addKey(key, val.keys);
+};
+
+/**
+ * Create an `alias` for property `key`.
  *
  * ```js
  * mapper.alias('foo', 'bar');
  * ```
-
- * @param  {String} `alias` Property being mapped from..
- * @param  {String} `key` Property being mapped to on the app.
- * @return {Object} `this` to enable chaining
+ * @param  {String} `alias` Alias to use for `key`.
+ * @param  {String} `key` Actual property or method on `app`.
+ * @return {Object} Returns the instance for chaining.
  * @api public
  */
 
 MapConfig.prototype.alias = function(alias, key) {
-  this.aliases[alias] = key;
-  this.addKey(alias);
+  if (this.config.hasOwnProperty(key)) {
+    this.config[alias] = this.config[key];
+  } else {
+    this.aliases[alias] = key;
+    this.addKey(alias);
+  }
   return this;
 };
 
@@ -117,18 +142,22 @@ MapConfig.prototype.process = function(args, cb) {
     cb = args;
     args = null;
   }
-  args = args || {};
-  cb = cb || function(err) {
-    if (err) throw err;
-  };
-  var key;
 
-  for (key in this.aliases) {
+  for (var key in this.aliases) {
     var alias = this.aliases[key];
     this.map(key, this.config[alias] || this.app[alias]);
   }
 
-  async.eachOfSeries(args, function(val, key, next) {
+  if (typeof cb !== 'function') {
+    if (this.async === true) {
+      throw new Error('expected a callback function');
+    }
+    cb = function(err) {
+      if (err) throw err;
+    };
+  }
+
+  async.eachOfSeries(args || {}, function(val, key, next) {
     var fn = this.config[key];
     if (typeof fn !== 'function') {
       return next();
@@ -141,33 +170,37 @@ MapConfig.prototype.process = function(args, cb) {
     try {
       fn.call(this.app, val);
       return next();
-    } catch(err) {
+    } catch (err) {
       return next(err);
     }
   }.bind(this), cb.bind(this.app));
 };
 
 /**
- * Add a key to the `.keys` array. May also be used to add an array of namespaced keys to the `.keys` array.
- * This is useful for mapping sub configs to a key in a parent config.
+ * Add a key to the `.keys` array. May also be used to add
+ * an array of namespaced keys to the `.keys` array. Useful
+ * for mapping "sub-configs" to a key in a parent config.
  *
  * ```js
  * mapper.addKey('foo');
  * console.log(mapper.keys);
  * //=> ['foo']
  *
- * var mapper1 = new MapConfig();
- * var mapper2 = new MapConfig();
- * mapper2.map('foo');
- * mapper2.map('bar');
- * mapper2.map('baz');
+ * var one = new MapConfig();
+ * var two = new MapConfig();
+ * two.map('foo');
+ * two.map('bar');
+ * two.map('baz');
  *
- * mapper1.map('mapper2', function(config, next) {
- *   mapper2.process(config, next);
+ * // map config `two` to config `one`
+ * one.map('two', function(config, next) {
+ *   two.process(config, next);
  * });
- * mapper1.addKey('mapper2', mapper2.keys);
- * console.log(mapper1.keys);
- * //=> ['mapper2.foo', 'mapper2.bar', 'mapper2.baz']
+ *
+ * // map keys from config `two` to config `one`
+ * one.addKey('two', two.keys);
+ * console.log(one.keys);
+ * //=> ['two.foo', 'two.bar', 'two.baz']
  * ```
  *
  * @param {String} `key` key to push onto `.keys`
@@ -177,26 +210,18 @@ MapConfig.prototype.process = function(args, cb) {
  */
 
 MapConfig.prototype.addKey = function(key, arr) {
-  var idx = this.keys.indexOf(key);
+  var keys = this.keys.slice();
   if (Array.isArray(arr)) {
-    if (idx === -1) {
-      this.keys = this.keys.concat(arr.map(function(val) {
-        return [key, val].join('.');
-      }));
-    } else {
-      this.keys.splice(idx, 1);
-      var vals = arr.map(function(val) {
-        return [key, val].join('.');
-      })
-      .filter(function(val) {
-        return this.keys.indexOf(val) === -1;
-      }.bind(this));
-
-      this.keys.push.apply(this.keys, vals);
+    keys = keys.concat(joinKeys(key, arr));
+    var i = keys.indexOf(key);
+    if (i !== -1) {
+      keys.splice(i, 1);
     }
-  } else if (idx === -1) {
-    this.keys.push(key);
+  } else {
+    keys.push(key);
   }
+
+  this.keys = unique(keys);
   return this;
 };
 
@@ -211,6 +236,37 @@ function isMapConfig(val) {
   return val
     && typeof val === 'object'
     && val.isMapConfig === true;
+}
+
+/**
+ * Return true if the given `fn` has a callback.
+ *
+ * @param {String} str
+ * @return {Boolean}
+ */
+
+function hasCallback(fn) {
+  var re = /^function[ \t]*([\w\W]+?, *(cb|callback|next))/;
+  return re.test(fn.toString());
+}
+
+/**
+ * Join "child" `keys` to a `parent` namespace.
+ *
+ * @param {String} parent
+ * @param {Array} keys
+ * @return {Array}
+ */
+
+function joinKeys(parent, keys) {
+  var len = keys.length;
+  var idx = -1;
+  var arr = [];
+
+  while (++idx < len) {
+    arr.push(parent + '.' + keys[idx]);
+  }
+  return arr;
 }
 
 /**
