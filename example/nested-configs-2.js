@@ -1,6 +1,6 @@
 'use strict';
 
-var Base = require('base-methods');
+var Base = require('base');
 var MapConfig = require('../');
 
 /**

@@ -20,7 +20,7 @@
     "test": "mocha"
   },
   "devDependencies": {
-    "base-methods": "^0.4.0",
+    "base": "^0.6.7",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.0.0",
     "gulp-istanbul": "^0.10.2",
@@ -39,6 +39,7 @@
     }
   },
   "dependencies": {
+    "array-unique": "^0.2.1",
     "async": "^1.5.2"
   },
   "contributors": [
