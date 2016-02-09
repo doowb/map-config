@@ -17,7 +17,7 @@ describe('map-config', function() {
       assert(MapConfig() instanceof MapConfig);
     });
 
-    it('should pass a config and the app instance to mapped methods', function(done) {
+    it('should pass a config and the app instance to mapped methods', function(cb) {
       var called = false;
       var map = {foo: 'bar', baz: 'bang'};
       var app = {bar: function(config) {
@@ -28,13 +28,13 @@ describe('map-config', function() {
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app, map);
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
-        done();
+        cb();
       });
     });
 
-    it('should not blow up if `app` is undefined', function(done) {
+    it('should not blow up if `app` is undefined', function(cb) {
       var app = {};
       app.set = function(key, val) {
         app[key] = val;
@@ -65,10 +65,10 @@ describe('map-config', function() {
         };
       }
 
-      one(app)({}, done);
+      one(app)({}, cb);
     });
 
-    it('should pass a config and the app instance to mapped functions', function(done) {
+    it('should pass a config and the app instance to mapped functions', function(cb) {
       var called = false;
       var map = {foo: function(config) {
         called = true;
@@ -80,13 +80,13 @@ describe('map-config', function() {
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app, map);
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
-        done();
+        cb();
       });
     });
 
-    it('should call a method on the app mapped through the map', function(done) {
+    it('should call a method on the app mapped through the map', function(cb) {
       var output = [];
       var map = {foo: 'bar'};
 
@@ -99,13 +99,13 @@ describe('map-config', function() {
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app, map);
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, ['bar beep']);
-        done();
+        cb();
       });
     });
 
-    it('should not map anything when config is empty', function(done) {
+    it('should not map anything when config is empty', function(cb) {
       var output = [];
       var map = {foo: 'bar'};
 
@@ -117,13 +117,13 @@ describe('map-config', function() {
 
       var mapper = new MapConfig(app, map);
       mapper.process(function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, []);
-        done();
+        cb();
       });
     });
 
-    it('should not map anything when nothing is configured', function(done) {
+    it('should not map anything when nothing is configured', function(cb) {
       var output = [];
       var app = {
         bar: function(config) {
@@ -133,13 +133,13 @@ describe('map-config', function() {
 
       var mapper = new MapConfig(app);
       mapper.process({'bar': {baz: 'foo'}}, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, []);
-        done();
+        cb();
       });
     });
 
-    it('should not map anything when aliased property is not a method', function(done) {
+    it('should not map anything when aliased property is not a method', function(cb) {
       var output = [];
       var app = {
         bar: 'baz'
@@ -149,13 +149,13 @@ describe('map-config', function() {
         .alias('foo', 'bar');
 
       mapper.process({'foo': {baz: 'foo'}}, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, []);
-        done();
+        cb();
       });
     });
 
-    it('should not map un-mapped methods on the app.', function(done) {
+    it('should not map un-mapped methods on the app.', function(cb) {
       var output = [];
       var app = {
         a: function(a) { output.push(a); },
@@ -187,9 +187,9 @@ describe('map-config', function() {
       };
 
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, ['a', 'c']);
-        done();
+        cb();
       });
     });
   });
@@ -276,7 +276,7 @@ describe('map-config', function() {
   });
 
   describe('map', function() {
-    it('should pass a config and the app instance to mapped functions from `.map`', function(done) {
+    it('should pass a config and the app instance to mapped functions from `.map`', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -288,13 +288,13 @@ describe('map-config', function() {
         });
 
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
-        done();
+        cb();
       });
     });
 
-    it('should call same method on the app as specified through `.map`', function(done) {
+    it('should call same method on the app as specified through `.map`', function(cb) {
       var output = [];
       var app = {
         foo: function(config) {
@@ -307,13 +307,13 @@ describe('map-config', function() {
         .map('foo');
 
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, ['foo beep']);
-        done();
+        cb();
       });
     });
 
-    it('should call a child mapper when passed through `.map`', function(done) {
+    it('should call a child mapper when passed through `.map`', function(cb) {
       var output = [];
       var app = {
         foo: function(config) {
@@ -339,13 +339,13 @@ describe('map-config', function() {
         .map('child', mapper1);
 
       mapper2.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, ['foo beep', 'bar boop']);
-        done();
+        cb();
       });
     });
 
-    it('should not map anything when config is empty from `.map`', function(done) {
+    it('should not map anything when config is empty from `.map`', function(cb) {
       var output = [];
 
       var app = {
@@ -358,15 +358,15 @@ describe('map-config', function() {
         .map('foo', 'bar');
 
       mapper.process(function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, []);
-        done();
+        cb();
       });
     });
   });
 
   describe('alias', function() {
-    it('should map methods from `.alias` to app methods', function(done) {
+    it('should map methods from `.alias` to app methods', function(cb) {
       var called = false;
       var app = {
         bar: function(config) {
@@ -384,13 +384,13 @@ describe('map-config', function() {
 
       var config = {foo: {baz: 'beep'}};
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
-        done();
+        cb();
       });
     });
 
-    it('should map methods from `.alias` to previously mapped methods', function(done) {
+    it('should map methods from `.alias` to previously mapped methods', function(cb) {
       var called = false;
 
       var app = {cache: {}};
@@ -409,14 +409,14 @@ describe('map-config', function() {
 
       var config = {foo: {bar: 'baz'}};
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
         assert.deepEqual(app.cache, config.foo);
-        done();
+        cb();
       });
     });
 
-    it('should map methods from `.alias` to methods mapped afterwards', function(done) {
+    it('should map methods from `.alias` to methods mapped afterwards', function(cb) {
       var called = false;
 
       var app = {cache: {}};
@@ -435,14 +435,14 @@ describe('map-config', function() {
 
       var config = {foo: {bar: 'baz'}};
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
         assert.deepEqual(app.cache, config.foo);
-        done();
+        cb();
       });
     });
 
-    it('should invoke app methods from aliased methods', function(done) {
+    it('should invoke app methods from aliased methods', function(cb) {
       var output = [];
       var app = {
         bar: function(config) {
@@ -455,26 +455,26 @@ describe('map-config', function() {
         .alias('foo', 'bar');
 
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert.deepEqual(output, ['bar beep']);
-        done();
+        cb();
       });
     });
   });
 
   describe('process', function() {
-    it('should bind the process callback to the app', function(done) {
+    it('should bind the process callback to the app', function(cb) {
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app);
       mapper.process(config, function(err) {
         assert.deepEqual(this, app);
-        if (err) return done(err);
-        done();
+        if (err) return cb(err);
+        cb();
       });
     });
 
-    it('should process a config and call async function when done', function(done) {
+    it('should process a config and call async function when finished', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -486,13 +486,13 @@ describe('map-config', function() {
         });
 
       mapper.process(config, function(err) {
-        if (err) return done(err);
+        if (err) return cb(err);
         assert(called);
-        done();
+        cb();
       });
     });
 
-    it('should process a config and return when done', function() {
+    it('should process a config and return when finished', function() {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -507,7 +507,7 @@ describe('map-config', function() {
       assert(called);
     });
 
-    it('should process a config and return an `err` when an error is thrown', function(done) {
+    it('should process a config and return an `err` when an error is thrown', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -521,11 +521,11 @@ describe('map-config', function() {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
-        done();
+        cb();
       });
     });
 
-    it('should process a config and return an `err` when an error is returned', function(done) {
+    it('should process a config and return an `err` when an error is returned', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -539,11 +539,11 @@ describe('map-config', function() {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
-        done();
+        cb();
       });
     });
 
-    it('should process a config and throw an error when an error is thrown', function(done) {
+    it('should process a config and throw an error when an error is thrown', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -555,16 +555,16 @@ describe('map-config', function() {
 
       try {
         mapper.process(config);
-        done(new Error('expected an error.'));
+        cb(new Error('expected an error.'));
       } catch (err) {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
-        done();
+        cb();
       }
     });
 
-    it('should process a config and throw an error when an error returned', function(done) {
+    it('should process a config and throw an error when an error returned', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -576,16 +576,16 @@ describe('map-config', function() {
 
       try {
         mapper.process(config);
-        done(new Error('expected an error.'));
+        cb(new Error('expected an error.'));
       } catch (err) {
         assert(err);
         assert(called);
         assert.equal(err.message, 'test error');
-        done();
+        cb();
       }
     });
 
-    it('should throw when a fn is async but no done is passed to process', function(done) {
+    it('should throw when a fn is async but no callback is passed to process', function(cb) {
       var called = false;
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
@@ -597,12 +597,12 @@ describe('map-config', function() {
 
       try {
         mapper.process(config);
-        done(new Error('expected an error.'));
+        cb(new Error('expected an error.'));
       } catch (err) {
         assert(err);
         assert(!called);
         assert.equal(err.message, 'expected a callback function');
-        done();
+        cb();
       }
     });
   });
