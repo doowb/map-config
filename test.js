@@ -103,7 +103,6 @@ describe('map-config', function() {
         assert.deepEqual(output, ['bar beep']);
         done();
       });
-
     });
 
     it('should not map anything when config is empty', function(done) {
@@ -122,7 +121,6 @@ describe('map-config', function() {
         assert.deepEqual(output, []);
         done();
       });
-
     });
 
     it('should not map anything when nothing is configured', function(done) {
@@ -139,7 +137,6 @@ describe('map-config', function() {
         assert.deepEqual(output, []);
         done();
       });
-
     });
 
     it('should not map anything when aliased property is not a method', function(done) {
@@ -156,7 +153,6 @@ describe('map-config', function() {
         assert.deepEqual(output, []);
         done();
       });
-
     });
   });
 
@@ -397,7 +393,7 @@ describe('map-config', function() {
 
       var mapper = new MapConfig(app)
         .alias('foo', 'set')
-        .map('set')
+        .map('set');
 
       var config = {foo: {bar: 'baz'}};
       mapper.process(config, function(err) {
