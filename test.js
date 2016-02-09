@@ -154,6 +154,44 @@ describe('map-config', function() {
         done();
       });
     });
+
+    it('should not map un-mapped methods on the app.', function(done) {
+      var output = [];
+      var app = {
+        a: function(a) { output.push(a); },
+        b: function(b) { output.push(b); },
+        c: function(c) { output.push(c); },
+        d: function(d) { output.push(d); },
+        e: function(e) { output.push(e); },
+        f: function(f) { output.push(f); },
+        g: function(g) { output.push(g); }
+      };
+
+      // pass map into constructor with some methods mapped.
+      var map = {
+        a: 'a',
+        b: 'b'
+      };
+
+      // map additional properties through `.map`
+      var mapper = new MapConfig(app, map)
+        .map('c', 'c')
+        .map('d', 'd');
+
+      // confi contains mapped properties and unmapped properties
+      var config = {
+        a: 'a',
+        c: 'c',
+        e: 'e',
+        g: 'g'
+      };
+
+      mapper.process(config, function(err) {
+        if (err) return done(err);
+        assert.deepEqual(output, ['a', 'c']);
+        done();
+      });
+    });
   });
 
   describe('keys', function() {
