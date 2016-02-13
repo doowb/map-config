@@ -171,6 +171,7 @@ MapConfig.prototype.process = function(args, cb) {
       fn.call(this.app, val);
       return next();
     } catch (err) {
+      err.message = 'map-config#process ' + err.message;
       return next(err);
     }
   }.bind(this), cb.bind(this.app));
