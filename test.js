@@ -520,7 +520,7 @@ describe('map-config', function() {
       mapper.process(config, function(err) {
         assert(err);
         assert(called);
-        assert.equal(err.message, 'test error');
+        assert.equal(err.message, 'map-config#process test error');
         cb();
       });
     });
@@ -559,7 +559,7 @@ describe('map-config', function() {
       } catch (err) {
         assert(err);
         assert(called);
-        assert.equal(err.message, 'test error');
+        assert.equal(err.message, 'map-config#process test error');
         cb();
       }
     });
@@ -580,7 +580,7 @@ describe('map-config', function() {
       } catch (err) {
         assert(err);
         assert(called);
-        assert.equal(err.message, 'test error');
+        assert.equal(err.message, 'map-config#process test error');
         cb();
       }
     });
