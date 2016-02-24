@@ -47,12 +47,15 @@ function MapConfig(app, config) {
  * ```js
  * mapper
  *   .map('baz')
- *   .map('bang', function(config) {
+ *   .map('bang', function(val, key, config) {
  *   });
  * ```
-
+ *
  * @param  {String} `key` property key to map.
- * @param  {Function|Object} `val` Optional function to call when a config has the given key. May also pass another instance of MapConfig to be processed.
+ * @param  {Function|Object} `val` Optional function to call when a config has the given key.
+ *                                 Functions will be passed `(val, key, config)` when called.
+ *                                 Functions may also take a callback to indicate async usage.
+ *                                 May also pass another instance of MapConfig to be processed.
  * @return {Object} `this` to enable chaining
  * @api public
  */
@@ -195,8 +198,8 @@ MapConfig.prototype.process = function(args, cb) {
  * two.map('baz');
  *
  * // map config `two` to config `one`
- * one.map('two', function(config, next) {
- *   two.process(config, next);
+ * one.map('two', function(val, key, config, next) {
+ *   two.process(val, next);
  * });
  *
  * // map keys from config `two` to config `one`
