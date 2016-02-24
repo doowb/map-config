@@ -48,6 +48,7 @@ describe('map-config', function() {
 
         return function(args, next) {
           inst.process(args, function(err) {
+            console.log('one');
             if (err) next(err);
             assert(inst);
             assert(args);
@@ -60,8 +61,8 @@ describe('map-config', function() {
         var inst = new MapConfig(app)
           .map('set');
 
-        return function(args, next) {
-          inst.process(args, next);
+        return function(val, key, config, next) {
+          inst.process(val, next);
         };
       }
 
@@ -252,8 +253,8 @@ describe('map-config', function() {
       mapper1.map('baz');
 
       var mapper2 = new MapConfig({});
-      mapper2.map('mapper1', function(config, next) {
-        mapper1.process(config, next);
+      mapper2.map('mapper1', function(val, key, config, next) {
+        mapper1.process(val, next);
       });
       mapper2.addKey('mapper1', mapper1.keys);
 
@@ -530,7 +531,7 @@ describe('map-config', function() {
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app)
-        .map('foo', function(config, next) {
+        .map('foo', function(val, key, config, next) {
           called = true;
           next(new Error('test error'));
         });
@@ -590,7 +591,7 @@ describe('map-config', function() {
       var app = {beep: 'boop'};
       var config = {foo: {baz: 'beep'}};
       var mapper = new MapConfig(app)
-        .map('foo', function(config, next) {
+        .map('foo', function(val, key, config, next) {
           called = true;
           next();
         });
