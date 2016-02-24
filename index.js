@@ -92,16 +92,16 @@ MapConfig.prototype.map = function(key, val) {
  * var two = new MapConfig();
  * two.subConfig('bar', one);
  * ```
- * @param {String} `key` The property name to map to `val`
- * @param {Object} `val` Instance of map-config
+ * @param {String} `prop` The property name to map to `sub`
+ * @param {Object} `sub` Instance of map-config
  * @return {Object} Returns the instance for chaining.
  */
 
-MapConfig.prototype.subConfig = function(key, val) {
-  this.map(key, function(config, next) {
-    val.process(config, next);
+MapConfig.prototype.subConfig = function(prop, sub) {
+  this.map(prop, function(val, key, config, next) {
+    sub.process(val, next);
   });
-  return this.addKey(key, val.keys);
+  return this.addKey(prop, sub.keys);
 };
 
 /**
@@ -157,18 +157,19 @@ MapConfig.prototype.process = function(args, cb) {
     };
   }
 
-  async.eachOfSeries(args || {}, function(val, key, next) {
+  args = args || {};
+  async.eachOfSeries(args, function(val, key, next) {
     var fn = this.config[key];
     if (typeof fn !== 'function') {
       return next();
     }
 
     if (fn.async === true) {
-      return fn.call(this.app, val, next);
+      return fn.call(this.app, val, key, args, next);
     }
 
     try {
-      fn.call(this.app, val);
+      fn.call(this.app, val, key, args);
       return next();
     } catch (err) {
       err.message = 'map-config#process ' + err.message;
