@@ -43,7 +43,7 @@ var relatedConfig = MapConfig(app)
  */
 
 var verbConfig = MapConfig(app)
-  .map('related', function (related, next) {
+  .map('related', function (related, key, config, next) {
     relatedConfig.process(related, next);
   });
 
@@ -53,7 +53,7 @@ var verbConfig = MapConfig(app)
  */
 
 var config = MapConfig(app)
-  .map('verb', function (verb, next) {
+  .map('verb', function (verb, key, config, next) {
     verbConfig.process(verb, next);
   })
   .process(pkg, function(err) {
